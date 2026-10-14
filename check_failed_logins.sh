@@ -1,6 +1,7 @@
 #!/bin/bash
 
-STATE_FILE="/home/sairam/Desktop/last_count.txt"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATE_FILE="$SCRIPT_DIR/last_count.txt"
 
 CURRENT_COUNT=$(sudo grep "Failed password" /var/log/auth.log | grep -v "sudo:" | wc -l)
 

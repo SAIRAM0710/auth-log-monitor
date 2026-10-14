@@ -11,7 +11,7 @@ THRESHOLD = 2
 WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
 result = subprocess.run(
-    ["bash", "/home/sairam/Desktop/check_failed_logins.sh"],
+    ["bash", os.path.join(os.path.dirname(os.path.abspath(__file__)), "check_failed_logins.sh")],
     capture_output=True, text=True
 )
 output = result.stdout
