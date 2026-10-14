@@ -1,0 +1,4 @@
+.env
+*.log
+!sample_output.log
+last_count.txt
