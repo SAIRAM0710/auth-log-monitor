@@ -2,8 +2,16 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE_FILE="$SCRIPT_DIR/last_count.txt"
+LOG_FILE="/var/log/auth.log"
 
-CURRENT_COUNT=$(sudo grep "Failed password" /var/log/auth.log | grep -v "sudo:" | wc -l)
+# Reading auth.log needs membership in the "adm" group (or root). If we can't
+# read it, stop with an error instead of silently counting 0 and saving 0.
+if [ ! -r "$LOG_FILE" ]; then
+    echo "ERROR: cannot read $LOG_FILE (is this user in the adm group?)" >&2
+    exit 1
+fi
+
+CURRENT_COUNT=$(grep "Failed password" "$LOG_FILE" | grep -v "sudo:" | wc -l)
 
 if [ -f "$STATE_FILE" ]; then
     LAST_COUNT=$(cat "$STATE_FILE")

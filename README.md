@@ -48,10 +48,10 @@ Run it once by hand:
 
 ### Run it on a schedule (cron)
 
-The script calls `sudo grep`, and cron can't type a sudo password, so put the job
-in **root's** crontab (`sudo crontab -e`). Use full paths, because cron does not
-start in your repo folder or know about your virtual environment. Replace the
-path with wherever you cloned the repo:
+First make sure your user can read the log (see [Permissions](#permissions)).
+Then add the job to **your own** crontab (`crontab -e`, no `sudo`). Use full
+paths, because cron does not start in your repo folder or know about your
+virtual environment. Replace the path with wherever you cloned the repo:
 
 ```cron
 */5 * * * * cd /home/YOUR_USER/Desktop/auth-log-monitor && .venv/bin/python check_and_alert.py >> monitor.log 2>&1
@@ -82,11 +82,18 @@ script and uses an older format (`Failed login attempts found : 3`).
 ## Permissions
 
 `/var/log/auth.log` is readable only by `root` and the `adm` group on
-Debian/Ubuntu. The script uses `sudo grep` to read it, so whoever runs it needs
-sudo rights. Running from root's crontab (above) covers this. If sudo can't
-run (for example, from a normal user's crontab), `grep` reads nothing, the
-count drops to 0, and that 0 is saved as the new baseline. The next successful run
-would then report the *whole* log as new.
+Debian/Ubuntu. The script reads it without `sudo`, so the user that runs it must
+be in the `adm` group. Check with `groups`; if `adm` is missing, add it and then
+log out and back in:
+
+```bash
+sudo usermod -aG adm "$USER"
+```
+
+This is deliberately less power than running as root: `adm` can read system logs
+but cannot change the system. If the log isn't readable, the script stops with
+`ERROR: cannot read /var/log/auth.log` and leaves `last_count.txt` untouched,
+instead of silently counting 0.
 
 ## Known limitations
 

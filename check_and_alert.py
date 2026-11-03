@@ -15,6 +15,9 @@ result = subprocess.run(
     ["bash", os.path.join(os.path.dirname(os.path.abspath(__file__)), "check_failed_logins.sh")],
     capture_output=True, text=True
 )
+if result.returncode != 0:
+    print("ERROR: check_failed_logins.sh failed:", result.stderr.strip())
+    sys.exit(1)
 output = result.stdout
 
 new_count = 0
