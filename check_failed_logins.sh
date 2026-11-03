@@ -13,6 +13,12 @@ fi
 
 NEW_COUNT=$((CURRENT_COUNT - LAST_COUNT))
 
+# If the log was rotated, it restarts with fewer lines than we saved last time,
+# which would make NEW_COUNT negative. Treat every line in the new log as new.
+if [ "$NEW_COUNT" -lt 0 ]; then
+    NEW_COUNT=$CURRENT_COUNT
+fi
+
 echo "Total failed logins in log: $CURRENT_COUNT"
 echo "New failed logins since last check: $NEW_COUNT"
 
