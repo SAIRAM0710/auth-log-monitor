@@ -5,6 +5,7 @@ import os
 load_dotenv()
 
 import subprocess
+import sys
 import requests
 
 THRESHOLD = 2
@@ -23,7 +24,20 @@ for line in output.splitlines():
 
 if new_count >= THRESHOLD:
     message = f"🚨 ALERT: {new_count} new failed SSH login attempts detected on ubuntu-2!"
-    requests.post(WEBHOOK_URL, json={"content": message})
+    if not WEBHOOK_URL:
+        print("ERROR: DISCORD_WEBHOOK_URL is not set in .env; alert not sent.")
+        sys.exit(1)
+    # requests puts the full URL in many of its error messages, and the webhook
+    # URL is a secret. Catch every error and print only safe details, so the URL
+    # never ends up in the terminal, monitor.log, or cron mail.
+    try:
+        response = requests.post(WEBHOOK_URL, json={"content": message}, timeout=10)
+    except requests.exceptions.RequestException as error:
+        print(f"ERROR: could not reach Discord ({type(error).__name__}); alert not sent.")
+        sys.exit(1)
+    if not response.ok:
+        print(f"ERROR: Discord returned HTTP {response.status_code}; alert not sent.")
+        sys.exit(1)
     print("Alert sent:", message)
 else:
     print(f"OK: {new_count} new failed logins, below threshold")
