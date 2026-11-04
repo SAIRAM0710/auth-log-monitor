@@ -29,6 +29,15 @@ threshold.
 
 ## Setup
 
+On Debian/Ubuntu, Python's `venv` module is a separate package. Install it first,
+or `python3 -m venv` below fails with `ensurepip is not available`:
+
+```bash
+sudo apt install python3-venv
+```
+
+Then:
+
 ```bash
 git clone https://github.com/SAIRAM0710/auth-log-monitor.git
 cd auth-log-monitor
@@ -69,15 +78,19 @@ Total failed logins in log: 4
 New failed logins since last check: 4
 ```
 
-And of `check_and_alert.py` when below or above the threshold:
+And `monitor.log` from a real cron run (one line every 5 minutes), where three
+failed SSH logins were made on purpose and the next run caught them and alerted:
 
 ```
 OK: 0 new failed logins, below threshold
-Alert sent: 🚨 ALERT: 4 new failed SSH login attempts detected on ubuntu-2!
+OK: 0 new failed logins, below threshold
+OK: 0 new failed logins, below threshold
+OK: 0 new failed logins, below threshold
+Alert sent: 🚨 ALERT: 3 new failed SSH login attempts detected on ubuntu-2!
+OK: 0 new failed logins, below threshold
 ```
 
-`sample_output.log` in this repo was captured from an earlier version of the
-script and uses an older format (`Failed login attempts found : 3`).
+The same output is saved in [`sample_output.log`](sample_output.log).
 
 ## Permissions
 
